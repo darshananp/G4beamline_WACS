@@ -1,0 +1,921 @@
+#
+#	Photon.g4bl - 4.4,6.6,8.8 GeV electron beam into a Copper radiator
+#
+g4ui when=4 "/vis/geometry/set/forceLineSegmentsPerCircle all 0 50"
+#g4ui when=4 "/vis/scene/add/axes 0 0 0 150 cm"
+#g4ui when=4 "/vis/scene/add/axes 0 0 -4034 500 mm"
+#g4ui when=4 "/vis/scene/add/axes 0 0 -2034 500 mm"
+
+g4ui when=4 "/vis/scene/add/axes 0 -460 0 2000 mm"
+#g4ui when=4 "/vis/viewer/zoom 4"
+#g4ui when=4 "/vis/scene/add/axes 64.05 0 -4347 5 mm"
+#g4ui when=4 "/vis/viewer/set/sectionPlane 0 0 -5314 mm 0 0 1"
+#g4ui when=4 "/vis/scene/add/axes 3000 0 -7000 100 mm"
+
+g4ui when=4 "/vis/scene/add/axes 0 0 -4072 20 mm"
+
+#move the dipole system by darshana
+param mdarshanaOffset=000
+
+#output output_shift_mm_$mdarshanaOffset.txt
+
+param worldMaterial=Vacuum
+
+param -unset PROJ=3
+if $PROJ==1
+ # XY
+ g4ui when=4 "/vis/viewer/set/viewpointThetaPhi 180 0 deg"
+elseif $PROJ==2
+ # XZ
+ g4ui when=4 "/vis/viewer/set/viewpointThetaPhi 90 89.99 deg"
+else 
+ # YZ
+ g4ui when=4 "/vis/viewer/set/viewpointThetaPhi 90 180 deg"
+endif
+
+# The "default" physics list is QGSP_BERT
+physics QGSP_BERT_EMX synchrotronRadiation=0
+#physics QGSP_BIC
+
+#trackcuts keep=pi+,pi-,e+,e-,gamma kineticEnergyCut=100 maxTime=1000
+trackcuts kineticEnergyCut=100 maxTime=100000
+
+# Number of events 
+
+param -unset Nev=10000
+
+# the beam is 4.4,6.6,8.8 GeV electrons energy
+#param Eel=4400
+#param Eel=6600
+param -unset Eel=8800
+# Cu radiator length in cm
+param CuRadL=1.436
+#
+param RadLPercent=0.1
+param RadiatorLength=10*$CuRadL*$RadLPercent
+
+# W radiation length is in mm
+param TungstenRadL=0.3504*10
+
+param -unset B1=-2.07
+param INCH=2.54
+param inch=$INCH
+
+param FZDX=17.66*$INCH*10
+param FZDY=30.74*$INCH*10
+param FZDZ=76.34*$INCH*10
+param pFZBZ=76.34*$INCH*10
+
+param FZBSidePlateX=5.85
+
+param FZBX=$FZDX-2*$FZBSidePlateX*$INCH*10
+param FZBY=$FZDY-(5.98+5.98)*$INCH*10
+param FZBZ=76.34*$INCH*10
+
+param pFZBContainerX=$FZDX+20
+param pFZBContainerY=$FZDY+20
+param pFZBContainerZ=$FZDZ+15*$INCH*10
+
+param -unset DipoleRotAngle=4.2
+param DipoleRot=X$DipoleRotAngle
+
+#move the dipole system by darshana
+#param mdarshanaOffset=600
+
+param zPosFZBend=-5314+$mdarshanaOffset
+param zPosDipole1=$zPosFZBend
+param zPosDipole2=3000
+param zPosDipole3=5500
+param zPosDipole4=13920
+
+param zPosRadiatorNew=$zPosFZBend-($pFZBContainerZ/2.0+$RadiatorLength)-20
+param zPosRadiator=-$FZBZ/2-100
+param -unset vacuumPipeColor=0.6,0.6,0.6
+
+param histoFile=WACS_$Eel.$RadLPercent.rl.$Nev.ev.Shift_$mdarshanaOffset
+param output=WACS_$Eel.$RadLPercent.rl.$Nev.ev.Shift_$mdarshanaOffset
+
+param zPosLocalDump=15000+0.5612*40*10/2.0
+param LocalDumpL=0.5612*40*10
+
+param deltaChord=0.01
+#
+################################################################################################################
+##################################### VISUALIZATION ATTRIBUTES #################################################
+################################################################################################################
+#
+# kapton light yellow 
+#
+param LightYellowVisAtt=0.8,0.8,0.2
+param WhiteVisAtt=1.0,1.0,1.0 
+param HallVisAtt=''
+param CuBrownVisAtt=1.0,0.5,0.5
+param DarkBlueVisAtt=0.0,0.5,1.0
+param YellowVisAtt=0.8,0.8,0.2
+param GrayVisAtt=0.75,0.75,0.75
+param RadiatorVisAtt=0.76,0.9,0.0
+param DarkGrayVisAtt=151.0/255.0,151.0/255.0,151.0/255.0
+param LightBlueVisAtt=132/255.,112./255.,250./255.
+param SilverVisAtt=153/255.,204./255.,255./255.
+#
+################################################################################################################
+##################################### VISUALIZATION OPTIONS ####################################################
+################################################################################################################
+#
+param -unset SHOW=0
+param -unset SHOW_TARGET_POST=1
+param -unset SHOW_FIELD=0
+param -unset SHOW_TARGET_FIELD=0
+param -unset SHOW_DIPOLE_FIELD=0
+param -unset DO_PLANES=0
+param -unset SHOW_DUMP=0
+param -unset DIPOLE_CONT_COLOR=''
+param -unset TARGET_FIELD_OFF=0
+param -unset TARGET_FIELD_ROT=X0
+param -unset NO_RADIATOR=0
+param -unset DipoleDarkBlueVisAtt=$DarkBlueVisAtt
+#
+################################################################################################################
+##################################### MATERIALS ################################################################
+################################################################################################################
+#
+material WNiCu_Alloy     density=17   G4_W,0.9 G4_Ni,0.05 G4_Cu,0.05
+#
+material StainlessSteel  density=7.85 G4_Fe,0.9543 G4_Cr,0.0325 G4_Ni,0.0120 G4_Mo,0.0012
+#
+material SiliconSteel    density=7.65 G4_Fe,0.9563 G4_Si,0.0437
+#
+material He4 Z=2 A=4.002602 density=0.145
+#
+material TargetMixture density=0.572248803827751340 G4_AMMONIA,0.903 He4,0.097
+#
+################################################################################################################
+#
+# a zero-emittance beam is unrealistic, but simple; it easily fits through
+# a 1 mm hole in the backward detector. It emanates from z=0.
+if $SHOW_FIELD==0
+# beam gaussian meanMomentum=$Eel nEvents=10000 particle=e- beamZ=$zPosRadiatorNew-50+$zPosFZBend
+ beam gaussian meanMomentum=$Eel nEvents=$Nev particle=e- beamZ=$zPosRadiatorNew-50
+endif
+################################################################################################################
+############################## SCATTERING CHAMBER ##############################################################
+################################################################################################################
+#
+param mScatChamberL=711.2
+param mScatChamberRin=454.025
+param mScatChamberRout=479.425
+param mScatChamberExitWindowThick=0.508
+
+param mShieldLN2Rin=412.75
+param mShieldLN2Rout=419.10
+param mShieldLN2L=700.0
+param mShieldLN2WindowThick=0.0381
+
+param pSCExitWindowH=15.0*$INCH*10
+param pSCEntranceWindowH=6.44*$INCH*10
+param pSCEntranceWindowH_GEP=6.44*$INCH*10
+param pSCEntranceWindowVoffset=-1.766*$INCH*10
+param pSCWindowRin=$mShieldLN2Rin-10
+param pSCWindowRout=$mScatChamberRout+10
+#
+param pSCEntranceWindowLongR=5.75*$inch/2.0*10
+param pSCEntranceWindowLongL_Half=$pSCWindowRout-$pSCWindowRin
+param pSCEntranceWindowLongSubY=($pSCWindowRout+$pSCWindowRin)/2.0
+#
+param pSCEntranceWindowLongFlangeRout=8.0*$inch/2*10
+param pSCEntranceWindowLongFlangeRin=5.6*$inch/2*10
+
+#this flange attached to the openning, started position is
+#sqrt(SCRout^2 - Ropen^2) 
+
+param pSCEntranceWindowLongFlangeL=40.0
+param pSCEntranceWindowLongFlangeY=sqrt(pow($mScatChamberRout,2)-pow($pSCEntranceWindowLongR,2))+$pSCEntranceWindowLongFlangeL/2.0
+
+param ShieldLHeRin=38.1
+
+param pScatChamberContainerRin=$ShieldLHeRin
+param pScatChamberContainerRout=$mScatChamberRout+$mScatChamberExitWindowThick+$pSCEntranceWindowLongFlangeL+10.0
+param pScatChamberContainerL=$mScatChamberL+(3.00+17.0+1.25+0.25)*$INCH*2*10 + 10.0
+
+param mScatChamberXOffset=0
+param mScatChamberYOffset=0
+param mScatChamberZOffset=0
+
+param pRotBField=X0
+
+#rotate with the coil
+
+totalenergy
+
+param pRotScatInHall=X-90,$pRotBField
+#
+################################################################################################################
+############################## SCATTERING CHAMBER CONTAINER ####################################################
+################################################################################################################ 
+#
+# This is just a container to enclose the taraget chamber, 10 mm larger than the scattering chamber itself.
+# The scattering chamber containner is made of helium gas, will put vacuum inside using innerScatChamber
+# Note that the top part is 17"+0.25" higher than the bottom part, I build a large tube then subtract the bottom 17.25"
+
+cylinder scatChamberContainerExtendedSolid innerRadius=$pScatChamberContainerRin  outerRadius=$pScatChamberContainerRout \
+                                           length=$pScatChamberContainerL material=He color=$vacuumPipeColor
+cylinder scatChamberContainerExtraSolid innerRadius=0  outerRadius=$pScatChamberContainerRout+1 \
+                                           length=17.25*$INCH*10 material=He color=$HallVisAtt
+
+boolean op=subtraction scatChamberContainerSolid scatChamberContainerExtendedSolid scatChamberContainerExtraSolid \
+                                           x=0 y=0 z=-$pScatChamberContainerL/2+17.25*$INCH/2.0*10-1 material=He
+
+######################### END of scattering chamber container, will be placed at the end of the file
+##
+################################################################################################################ 
+############################## SCATTERING CHAMBER ##############################################################
+################################################################################################################ 
+#
+# Build the scatter chamber,it contains 5 windows,  4 rectangles and 1 circle
+# target chamber container || scattering chamber container
+# double mScatChamberRin=17.875*inch,mScatChamberRout=18.875*inch,mScatChamberL=28*inch;
+
+cylinder scatChamberWholeSolid innerRadius=$mScatChamberRin  outerRadius=$mScatChamberRout \
+                                           length=$mScatChamberL+4.25*$INCH*2*10  material=Al color=$vacuumPipeColor
+
+############################# END of SCATTERING CHAMBER ########################################################
+################################################################################################################ 
+############################# BUILD CONTAINER COMPONENTS #######################################################
+################################################################################################################ 
+#
+############# Rectangle ExitWindowTran
+#
+cylinder SCExitWindowTranSolid innerRadius=$pSCWindowRin outerRadius=$pSCWindowRout \
+                               length=$pSCExitWindowH initialPhi=162 finalPhi=(162+36) color=1,0,0
+#rectangle ExitWindowLong
+cylinder SCExitWindowLongSolid innerRadius=$pSCWindowRin outerRadius=$pSCWindowRout \
+                               length=$pSCExitWindowH initialPhi=219 finalPhi=219+60 color=1,0,1
+#
+############# Rectangle ExitWindowLeftSide
+#
+cylinder SCExitWindowLeftSideSolid innerRadius=$pSCWindowRin outerRadius=$pSCWindowRout \
+                                   length=$pSCExitWindowH initialPhi=289 finalPhi=289+32 color=1,0,1
+#
+############# Rectangle EntranceWindowTran, for SANE transverse, LN2 shielding will subtract this solid
+#
+cylinder SCEntranceWindowTranSANESolid innerRadius=$pSCWindowRin outerRadius=$pSCWindowRout \
+                                   length=$pSCExitWindowH initialPhi=342 finalPhi=342+36 color=1,0,1
+
+cylinder SCEntranceWindowTranSolid innerRadius=$pSCWindowRin outerRadius=$pSCWindowRout \
+                                   length=$pSCEntranceWindowH initialPhi=342 finalPhi=342+36 color=1,0,1
+
+# circle, located at phi=180 degree, EntranceWindowLong subtracted part
+
+cylinder SCEntranceWindowLongSubSolid innerRadius=0 outerRadius=$pSCEntranceWindowLongR \
+                                   length=2*$pSCEntranceWindowLongL_Half initialPhi=0 finalPhi=360 color=1,0,1
+
+cylinder SCEntranceWindowLongFlangeSolid innerRadius=$pSCEntranceWindowLongFlangeRin outerRadius=$pSCEntranceWindowLongFlangeRout \
+                                   length=$pSCEntranceWindowLongFlangeL initialPhi=0 finalPhi=360 color=1,0,1
+
+cylinder SCEntranceWindowGEPSolid innerRadius=$pSCWindowRin outerRadius=$pSCWindowRout \
+                                   length=$pSCEntranceWindowH_GEP initialPhi=66.25 finalPhi=66.25+7.5 color=1,0,1
+# build the boolean geometry
+
+#subtract the transverse exit 
+boolean op=subtraction SCSubtractExitTSolid scatChamberWholeSolid SCExitWindowTranSolid color=0.72,0.45,0.2
+
+#subtract the longitudinal exit 
+boolean op=subtraction SCSubtractExitTNLSolid SCSubtractExitTSolid  SCExitWindowLongSolid color=0.72,0.45,0.2
+
+#subtract the left side exit, the orignal size 
+boolean op=subtraction SCSubtractExitTNLNSSolid SCSubtractExitTNLSolid SCExitWindowLeftSideSolid  color=0.72,0.45,0.2
+
+# subtract the transverse entrance 
+# G2p entrance window has a vertical offset but SANE and WACS in Hall C will not  
+
+boolean op=subtraction SCSubtractExitNEntranceTSolid SCSubtractExitTNLNSSolid  SCEntranceWindowTranSolid 
+
+# subtract the logitudinal entrance, which is a circle 
+# need to rotate about X (in container Coor, in Hall Coor it is Y) by 90 degrees then 
+# subtract it to make a circle hole
+
+boolean op=subtraction SCSubtractExitNEntranceTNLSolid SCSubtractExitNEntranceTSolid SCEntranceWindowLongSubSolid  \ 
+                                        x=0 y=$pSCEntranceWindowLongSubY z=0 rotation=X90
+
+# subtract GEP entrance windows, 1.766 inch below
+
+boolean op=subtraction SCSubtractExitNEntranceTNLNGSolid SCSubtractExitNEntranceTNLSolid SCEntranceWindowGEPSolid\ 
+                                        x=0 y=0 z=$pSCEntranceWindowVoffset color=0.72,0.45,0.2
+
+# union with the flange(the protrude part) of logitudinal entrance
+boolean op=union SCSubtractExitNEntranceTNLNGUnionLSolid SCSubtractExitNEntranceTNLNGSolid  SCEntranceWindowLongFlangeSolid \ 
+                                        x=0 y=$pSCEntranceWindowLongFlangeY z=0 rotation=X90 material=Al color=$WhiteVisAtt
+
+# setup the scatter chamber
+
+place SCSubtractExitNEntranceTNLNGUnionLSolid rename=scatChamberSolid x=0 y=0 z=0 parent=scatChamberContainerSolid 
+#rotation=X180
+
+###############################################################################################################
+#
+##############  Target chamber window covers 
+#
+# Covers for EntranceWindow Tran,Long,Side ,ExitWindowTran, ExitWindowLong,  
+# ExitWindowLeftSide, viewwindow1(d=3.75'), viewwindow2(d=3.75') are not included 
+# Al told that the exit window for 0, 20 and 90 degrees target field are all 20 mil of aluminum
+
+param pSCExitWindowCoverH=$pSCExitWindowH+0.8*$INCH*10
+param pSCEntranceWindowCoverH=$pSCEntranceWindowH+0.8*$INCH*10
+param pSCExitWindowCoverRin=$mScatChamberRout
+param pSCExitWindowCoverRout=$mScatChamberRout+$mScatChamberExitWindowThick
+
+# ExitWindowTranCover
+
+cylinder SCExitWindowTranCoverSolid innerRadius=$pSCExitWindowCoverRin  outerRadius=$pSCExitWindowCoverRout \
+                                   length=$pSCExitWindowCoverH initialPhi=162 finalPhi=(162+36) material=Al \
+
+# comment temporary                                   
+place SCExitWindowTranCoverSolid x=0 y=0 z=0 parent=scatChamberContainerSolid color=$LightYellowVisAtt
+
+#
+# ExitWindowLongCover
+#	
+cylinder SCExitWindowLongCoverSolid innerRadius=$pSCExitWindowCoverRin  outerRadius=$pSCExitWindowCoverRout \
+                                   length=$pSCExitWindowCoverH initialPhi=219 finalPhi=(219+60) material=Al \
+                                   
+# comment temporary
+#place SCExitWindowLongCoverSolid x=0 y=0 z=0 parent=scatChamberContainerSolid color=$LightYellowVisAtt
+
+# ExitWindowLeftSideCover
+cylinder SCExitWindowLeftSideCoverSolid  innerRadius=$pSCExitWindowCoverRin  outerRadius=$pSCExitWindowCoverRout \
+                                   length=$pSCExitWindowCoverH initialPhi=289 finalPhi=(289+32) material=Al 
+                                   
+# comment temporary
+# place SCExitWindowLeftSideCoverSolid x=0 y=0 z=0 parent=scatChamberContainerSolid color=$LightYellowVisAtt
+#
+################ Al told that the entrance window for 20 and 90 degrees target field are 7 mil of aluminum
+#
+param pSCEntranceWindowCoverRin=$mScatChamberRout
+param pSCEntranceWindowCoverRout=$mScatChamberRout+0.007*$INCH*10
+
+#EntranceWindowTranCover, G2P window
+
+cylinder SCEntranceWindowTranCoverSolid innerRadius=$pSCEntranceWindowCoverRin  outerRadius=$pSCEntranceWindowCoverRout \
+                  length=$pSCEntranceWindowCoverH initialPhi=342 finalPhi=(342+36) material=Al color=$LightYellowVisAtt
+                                                       
+# comment temporary
+place SCEntranceWindowTranCoverSolid x=0 y=0 z=0 parent=scatChamberContainerSolid
+
+### EntranceWindowLongCover, this rotation is very strange, but it works!!!
+### Note, only work if the BField rotation is about Y axis circle, located at 180 phi=degree, this entrance window is for 0 degree target field
+### Al told me that the material is 20 mil Beryllium
+
+param pBeThick=0.02*$INCH
+param pSCEntranceWindowLongCoverY=$pSCEntranceWindowLongFlangeY+$pSCEntranceWindowLongFlangeL/2+$pBeThick/2.0
+
+cylinder SCEntranceWindowLongCoverSolid  innerRadius=0  outerRadius=$pSCEntranceWindowLongFlangeRout \
+                                   length=$pBeThick initialPhi=0 finalPhi=360 material=Be color=$LightYellowVisAtt
+                                   
+param pRotEntranceWindowLongCover=$pRotBField,$pRotBField,X90
+#
+##### comment temporary, I changed the sign of $pSCEntranceWindowLongCoverY due to rotation check it again
+#
+place SCEntranceWindowLongCoverSolid x=0 y=$pSCEntranceWindowLongCoverY z=0 rotation=$pRotEntranceWindowLongCover parent=scatChamberContainerSolid
+#
+#EntranceWindowGEPCover, for GEP
+#	
+#startphi=66.25*deg;deltaphi=7.5*deg;
+
+cylinder SCEntranceWindowGEPCoverSolid innerRadius=$pSCEntranceWindowCoverRin  outerRadius=$pSCEntranceWindowCoverRout \
+                                   length=$pSCEntranceWindowCoverH initialPhi=66.25 finalPhi=(66.25+7.5) material=Al \
+                                   color=$LightYellowVisAtt
+
+# comment temporary
+##### 
+## place SCEntranceWindowGEPCoverSolid x=0 y=0 z=$pSCEntranceWindowVoffset parent=scatChamberContainerSolid
+#
+################################################################################################################
+###################### innerOfChamber  #########################################################################
+################################################################################################################
+#
+#	Inside the scatter chamber, it is vacuum, all stuff inside the chamber will use 
+#	the local coordination of this mother volumn, 
+#	startphi=0.0*deg;deltaphi=360.0*deg;
+#
+param mShieldLHeRin=38.1
+cylinder innerOfChamberSolid innerRadius=$mShieldLHeRin  outerRadius=$mScatChamberRin length=$mScatChamberL \
+                                   initialPhi=0 finalPhi=360 material=Vacuum color=$HallVisAtt
+                                   
+#       By Jixie: Add this step limit can help in calculating the integrated BdL
+#	double pScatChamberStepLimit=10;
+#	gConfig->GetArgument("ScatChamberStepLimit",pScatChamberStepLimit);
+#	pScatChamberStepLimit*=mm;
+#	G4UserLimits* uSCStepLimits = new G4UserLimits(pScatChamberStepLimit);
+#	innerOfChamberLogical->SetUserLimits(uSCStepLimits);
+#	innerOfChamberLogical->SetVisAttributes(HallVisAtt);  //white invisible
+
+#
+######## LN2 shielding 
+#
+#	LN2 Shield cylinder itself is 1/4 inch, but have windows similar to the scattering chamber
+#	there are also covers for each opening. In order to simplify the geometry, I union a
+#	thin aluminum foil (1.5 mil) onto the outer surface of it as the cover
+#	LN2 Shield cynlider with Din=32.5", Dout=33" and L=33.25", the cover is 0.0015'=0.0381mm,
+#	Drawing# 67504-E-0015 sheet 2
+#	double mShieldLN2Rin=16.15*inch,mShieldLN2Rout=16.50*inch, mShieldLN2L=33.25*inch;
+#	startphi=0.0*deg;deltaphi=360.0*deg;
+
+
+cylinder shieldLN2WholeSolid innerRadius=$mShieldLN2Rin  outerRadius=$mShieldLN2Rout \
+                                   length=$mShieldLN2L initialPhi=0 finalPhi=360 material=Vacuum \
+                                   color=$LightYellowVisAtt
+
+cylinder shieldLN2CoverSolid innerRadius=$mShieldLN2Rout outerRadius=$mShieldLN2Rout+$mShieldLN2WindowThick \
+                                   length=$mShieldLN2L initialPhi=0 finalPhi=360 material=Vacuum \
+                                   color=$LightYellowVisAtt
+
+#
+###########  Build the boolean geometry
+#
+########### subtract the transverse exit 
+#
+boolean op=subtraction ShieldLN2SubtractExitTSolid shieldLN2WholeSolid SCExitWindowTranSolid 
+#
+########### subtract the longitudinal exit 
+boolean op=subtraction ShieldLN2SubtractExitTNLSolid ShieldLN2SubtractExitTSolid SCExitWindowLongSolid 
+#
+########### subtract the left side exit 
+boolean op=subtraction ShieldLN2SubtractExitTNLNSSolid ShieldLN2SubtractExitTNLSolid SCExitWindowLeftSideSolid
+#
+#subtract the SANE transverse entrance 
+boolean op=subtraction ShieldLN2SubtractExitNEntranceTSolid ShieldLN2SubtractExitTNLNSSolid SCEntranceWindowTranSANESolid
+#
+####   subtract the logitudinal entrance, which is a circle 
+####   need to rotate about X (in container Coor, in Hall Coor it is Y) by 90 degrees then 
+####   subtract it to make a circle hole
+
+boolean op=subtraction ShieldLN2SubtractExitNEntranceTNLSolid ShieldLN2SubtractExitNEntranceTSolid SCEntranceWindowLongSubSolid \
+                                          rotation=X90 x=0 y=$pSCEntranceWindowLongSubY z=0 
+#
+####   subtract GEP entrance windows, 1.766 inch below
+#      Al make it a circle, since GEP angle is not finalize yet, I do not want to change it now
+#      need to change it later
+
+boolean op=subtraction ShieldLN2SubtractExitNEntranceTNLNGSolid ShieldLN2SubtractExitNEntranceTNLSolid SCEntranceWindowGEPSolid \
+                                             x=0 y=0 z=$pSCEntranceWindowVoffset
+#
+##### Union with the cover, no assignment operation 
+#
+##### ShieldLN2Solid=ShieldLN2SubtractExitNEntranceTNLNGSolid
+
+boolean op=union ShieldLN2Solid ShieldLN2SubtractExitNEntranceTNLNGSolid shieldLN2CoverSolid material=Al
+
+# now build and place the geometry
+# comment temporary, this slows down a lot 
+# place ShieldLN2Solid x=0 y=0 z=0 color=$WhiteVisAtt parent=innerOfChamberSolid 
+
+################################################################################################################
+###################### TARGET FIELD ############################################################################
+################################################################################################################
+#
+if $SHOW_TARGET_FIELD==1
+ fieldlines exit=0 radius=500 center=0,0,0 forever=1 nLines=30 color=0,1,0
+endif
+#
+if $TARGET_FIELD_OFF==0
+ fieldmap TargetField filename=Magnets/g2p_hallbfield_g4bl_mm.dat
+ place TargetField x=0 y=0 z=0 rotation=$TARGET_FIELD_ROT
+endif
+#
+################################################################################################################
+###################### TARGET COILS AND REST ###################################################################
+################################################################################################################
+####################################################################################################################
+######################################   Hall B Coil
+####################################################################################################################
+#
+param TARG_COILS=0
+if $TARG_COILS==1
+#
+param pRotDCoil=X90
+param pRotUCoil=X-90
+
+param rInnerTubs=116.5,116.5
+param rOuterTubs=153.0,153.0
+param zPlaneTubs=-16.0,16.0
+
+polycone InnerCoilSolid innerRadius=$rInnerTubs outerRadius=$rOuterTubs z=$zPlaneTubs \
+                        initialPhi=0 finalPhi=360 material=Cu color=$CuBrownVisAtt
+
+place InnerCoilSolid rename=InnerCoil1 x=0 y=-68 z=0 rotation=$pRotDCoil parent=innerOfChamberSolid
+place InnerCoilSolid rename=InnerCoil2 x=0 y=68  z=0 rotation=$pRotUCoil parent=innerOfChamberSolid
+
+param rInnerTubsOutC=165.5,165.5
+param rOuterTubsOutC=222.5,222.5
+param zPlaneTubsOutC=-24,24
+
+polycone OuterCoilSolid innerRadius=$rInnerTubsOutC outerRadius=$rOuterTubsOutC z=$zPlaneTubsOutC \
+                        initialPhi=0 finalPhi=360 material=Cu color=$CuBrownVisAtt
+
+place OuterCoilSolid rename=OuterCoil1 x=0 y=-99 z=0 rotation=$pRotDCoil parent=innerOfChamberSolid
+place OuterCoilSolid rename=OuterCoil2 x=0 y=99 z=0  rotation=$pRotUCoil parent=innerOfChamberSolid
+
+#
+####### Coil Former
+#
+param rInner_Coil_F=105.0,105.0,153.0,153.0,153.0,153.0,153.0,222.5,222.5
+param rOuter_Coil_F=130.0,130.0+34.5/tan(17.0*deg),130.0+34.5/tan(17.0*deg),250.0,250.0,244.5,244.5,244.5,244.5
+param zPlane_Coil_F=0.0,34.5,34.5,120*tan(17.0*deg),62.0,62.0,74.0,74.0,76.0
+
+
+#		G4Polycone* CoilFPolycone = new G4Polycone("CoilFPcon",startphi,deltaphi,
+#			kNPlane_Coil_F,zPlane_Coil_F,rInner_Coil_F,rOuter_Coil_F);
+
+polycone CoilFPolycone innerRadius=$rInner_Coil_F outerRadius=$rOuter_Coil_F z=$zPlane_Coil_F \
+                       initialPhi=0 finalPhi=360 material=StainlessSteel color=$DarkBlueVisAtt
+
+#G4SubtractionSolid* CoilFSub1 = new G4SubtractionSolid("CoilFSub1",CoilFPolycone,InnerCoilSolid,0,G4ThreeVector(0,0,27.5));
+boolean op=subtraction CoilFSub1 CoilFPolycone InnerCoilSolid  x=0 y=0 z=27.5
+
+#G4SubtractionSolid* CoilFSolid = new G4SubtractionSolid("CoilFSolid",CoilFSub1,OuterCoilSolid,0,G4ThreeVector(0,0,58.5));
+boolean op=subtraction CoilFSolid CoilFSub1 OuterCoilSolid x=0 y=0 z=58.5 material=StainlessSteel
+
+#G4LogicalVolume* CoilFLogical = new G4LogicalVolume(CoilFSolid,mMaterialManager->stainlesssteel,"CoilFLogical",0,0,0);
+			
+#new G4PVPlacement(pRotDCoil,G4ThreeVector(0,-40.5,0),CoilFLogical,"CoilFormerPhys",innerOfChamberLogical,true,0,0);
+#new G4PVPlacement(pRotUCoil,G4ThreeVector(0,40.5,0),CoilFLogical,"CoilFormerPhys",innerOfChamberLogical,true,1,0);
+
+place CoilFSolid rename=CoilF1 x=0 y=-40.5 z=0 rotation=$pRotDCoil parent=innerOfChamberSolid color=$DarkBlueVisAtt
+place CoilFSolid rename=CoilF2 x=0 y=40.5  z=0 rotation=$pRotUCoil parent=innerOfChamberSolid color=$DarkBlueVisAtt
+
+############## END of Coil Former
+#
+#####################################################################################################################
+# Coil Retainer
+#
+param rInner_Coil_R=105.0,105.0,105.0,105.0,(150.0-9.0*tan(50.0*deg)),(150.0-9.0*tan(50.0*deg)),150.0
+param rOuter_Coil_R=116.5,116.5,153.0,153.0,153.0,165.5,165.5
+param zPlane_Coil_R=0.0,9.0,9.0,(48.0-45.0/tan(50.0*deg)),39.0,39.0,48.0
+
+polycone CoilRSolid innerRadius=$rInner_Coil_R outerRadius=$rOuter_Coil_R z=$zPlane_Coil_R \
+                       initialPhi=0 finalPhi=360 material=StainlessSteel color=$DarkBlueVisAtt
+
+place CoilRSolid rename=CoilR1 x=0 y=-75 z=0 rotation=$pRotDCoil parent=innerOfChamberSolid color=$DarkBlueVisAtt
+place CoilRSolid rename=CoilR2 x=0 y=75  z=0 rotation=$pRotUCoil parent=innerOfChamberSolid color=$DarkBlueVisAtt
+
+################## END of Coil Retainer
+
+
+
+endif
+################################################################################################################
+###################### TARGET POST #############################################################################
+################################################################################################################
+#
+param LowerTargetPostStart=50.653*$INCH*10
+cylinder TargetPost innerRadius=0 outerRadius=26*$INCH*10/2.0 length=2000 material=StainlessSteel color=$DarkGrayVisAtt
+
+if $SHOW_TARGET_POST!=0
+ place TargetPost x=0 y=-1000-$LowerTargetPostStart z=0 rotation=X90
+endif
+################################################################################################################
+###################### DIPOLE MAGNET CONTAINER #################################################################
+################################################################################################################
+#
+if $SHOW==0
+# box FZVirtCont width=$pFZBContainerX height=$pFZBContainerY length=$pFZBContainerZ material=Vacuum color=''
+else 
+# box FZVirtCont width=$pFZBContainerX height=$pFZBContainerY length=$pFZBContainerZ material=Vacuum color=$DarkBlueVisAtt
+endif
+#
+################################################################################################################
+####################################### COPPER RADIATOR ########################################################
+################################################################################################################
+#
+# the radiator is a copper rod 20 cm long and 1 cm in diameter; make it red
+#
+if $NO_RADIATOR==0
+cylinder Radiator outerRadius=10 length=$RadiatorLength material=Cu color=$RadiatorVisAtt
+place Radiator rename=TheRadiator x=0 y=0 z=$zPosRadiatorNew
+endif
+#
+################################################################################################################
+####################### DIPOLE MAGNET ##########################################################################
+################################################################################################################
+#
+# genericbend Dipole1 fieldWidth=$FZBY fieldHeight=$FZBX fieldLength=$FZBZ \
+# 	ironColor=1,0,0 ironWidth=$FZDY ironHeight=$FZDX ironLength=$FZDZ openAperture=1
+
+box DipoleAll width=$FZDY height=$FZDX length=$FZDZ
+box DipoleGap width=$FZBY height=$FZBX length=$FZBZ+100
+
+boolean op=subtraction DipoleIron DipoleAll DipoleGap material=SiliconSteel color=$DipoleDarkBlueVisAtt
+
+if $SHOW_DIPOLE_FIELD==1
+# fieldlines exit=0 radius=200 center=0,0,$zPosFZBend forever=1 nLines=300 color=0,1,0
+ fieldlines exit=0 radius=1000 square=1 center=0,0,$zPosFZBend nLines=500 color=0,1,0
+endif
+
+fieldmap DipoleField filename=Magnets/Dipole_field_mm_Tesla.txt 
+
+############## DIPOLE COIL ##################################
+#
+param FZBCoilX=2*0.925*$INCH*10+1
+param FZBCoilY=$FZDY-2*5.98*$INCH*10
+param FZBCoilZ=$FZDZ+2.62*$INCH*10+3.35*2*$INCH*10
+#
+#############  The small box need to be subtracted ###################################
+
+param FZBPlateMidSideY=11.5*$INCH*10
+
+param FZBCoilSmallRecX=$FZBCoilX+10
+param FZBCoilSmallRecY=$FZBPlateMidSideY+1
+param FZBCoilSmallRecZ=$FZDZ+2.62*$INCH*10
+
+box FZCoilBox      width=$FZBCoilX         height=$FZBCoilY         length=$FZBCoilZ         color=0.72,0.45,0.2 material=Cu
+box FZCoilSubtrBox width=$FZBCoilSmallRecX height=$FZBCoilSmallRecY length=$FZBCoilSmallRecZ color=0.72,0.45,0.2 material=Cu
+
+boolean op=subtraction FZCoil FZCoilBox FZCoilSubtrBox color=0.72,0.45,0.2
+
+param FZBCoilPosX=$FZDX/2-$FZBSidePlateX*$INCH*10-$FZBCoilX/2
+
+########################### Start dipole pole construction ################################
+
+# Change 8.08 to match Jixie's model
+#
+param FZSideToPoleFace=(8.08-0.075)*$INCH*10
+param FZPoleDX=$FZSideToPoleFace-5.85*$INCH*10
+param FZPoleDY=11.5*$INCH*10
+param FZPoleDZ=$FZDZ
+param PoleTipChange=45
+
+# 45 is in mm no need to convert to INCH
+#
+param PoleBaseDX=$FZPoleDX-$PoleTipChange
+
+box PoleBase width=$PoleBaseDX height=$FZPoleDY length=$FZDZ color=1,0,0 material=SiliconSteel
+
+param ChangedPole=$FZPoleDY-2*$PoleTipChange/tan(60*deg)
+
+trap TrPole height=$PoleTipChange upperWidth=$FZPoleDY lowerWidth=$ChangedPole length=$FZDZ material=SiliconSteel color=1,0,0
+
+# Magnet pole is made of a rectangular base and trapezoidal face
+
+boolean op=union DipolePole PoleBase TrPole x=$PoleBaseDX/2.0+$PoleTipChange/2.0 color=0,1,0 rotation=Z-90 color=1,0,0
+
+################ FZB copper coil spacers #####################################################
+#
+param FZBCoilSpacerX=1.75*$INCH*10
+param FZBCoilSpacerY=$FZBCoilY/2-$FZBPlateMidSideY/2
+param FZBCoilSpacerZ=8.00*$INCH*10
+
+param FZBCoilPosY=$FZBPlateMidSideY/2+$FZBCoilSpacerY/2
+param FZBCoilPosZ=$FZBZ/2-$FZBCoilSpacerZ/2
+
+box FZBCoilSpacerSolid width=$FZBCoilSpacerX height=$FZBCoilSpacerY length=$FZBCoilSpacerZ color=$LightBlueVisAtt material=WNiCu_Alloy
+
+#############################################################
+#
+#### Beam pipe
+#
+# stainless steel rectangle pipe, thickness 0.188", there is one flange attached to each end
+#
+param pFZBVacuumXout=1.5*$INCH*10
+## 10 inch pipe does not work
+#param pFZBVacuumYout=10.0*$INCH*10
+param pFZBVacuumYout=2*$FZBCoilPosY-$FZBCoilSpacerY
+
+#param FZBCoilPosY=$FZBPlateMidSideY/2+$FZBCoilSpacerY/2
+#
+# it is 89.51*inch; I want the variable pFZBZ can be configured
+#
+#param pFZBVacuumZ=$pFZBZ+13.17*$INCH*10
+param pFZBVacuumZ=$pFZBZ
+param pFZBVacuumXin=$pFZBVacuumXout-2*0.188*$INCH*10
+param pFZBVacuumYin=$pFZBVacuumYout-2*0.188*$INCH*10
+#
+# the outer box
+box FZBVacuumOutSolid width=$pFZBVacuumXout height=$pFZBVacuumYout length=$pFZBVacuumZ
+# the inner box
+box FZBVacuumInSolid width=$pFZBVacuumXin height=$pFZBVacuumYin length=$pFZBVacuumZ+2
+#
+# the whole vacuum pipe = outer - inner
+#
+#boolean op=subtraction FZBVacuumPipeSolid FZBVacuumOutSolid FZBVacuumInSolid material=StainlessSteel color=$SilverVisAtt
+boolean op=subtraction FZBVacuumPipeSolid FZBVacuumOutSolid FZBVacuumInSolid material=Vacuum color=$SilverVisAtt
+#
+# the end disk (flange)
+#
+#param pFZBVacuumFlangeR=6.0*$INCH*10
+param pFZBVacuumFlangeR=5.75*$INCH*10
+#TODO: verify this thickness, not important ...
+param pFZBVacuumFlangeZ=0.6*$INCH*10
+
+cylinder FZBVacuumFlangeSolid innerRadius=0 outerRadius=$pFZBVacuumFlangeR length=$pFZBVacuumFlangeZ
+#
+# this flange will be subtracted by a rectange as large as the the vacuum pipe,
+# then the vacuum pipe will be attached with 2 flanges to make the total length to 90 inch 
+#
+boolean op=subtraction FZBVacuumFlangeSubRecSolid FZBVacuumFlangeSolid FZBVacuumOutSolid material=StainlessSteel color=$GrayVisAtt
+
+#place 2 flanges, one at each end into the magnet container
+
+param pFZBVacuumFlangePosZ=($pFZBZ+13.56*$INCH*10)/2-$pFZBVacuumFlangeZ/2.0
+
+############## Heavy metal shielding for dipole
+#
+# thickness is 20 radiation lengths 
+#
+param DipoleShieldThick=20*$TungstenRadL
+#
+box DipoleShieldSolidWhole width=$FZDX height=$FZDY        length=$DipoleShieldThick    color=$DarkGrayVisAtt material=WNiCu_Alloy
+box DipoleShieldMiddleGap  width=1.5*$INCH*10 height=$FZBY length=$DipoleShieldThick+10 color=$DarkGrayVisAtt material=WNiCu_Alloy
+
+boolean op=subtraction DipoleShield DipoleShieldSolidWhole DipoleShieldMiddleGap color=$DarkGrayVisAtt material=WNiCu_Alloy
+
+# A shielding after dipile with a gap for deflected electrons and a collimator 
+#
+param CollimatorHoleR=0.7
+param CollimatorOuterR=100
+
+cylinder PhotonCollimator innerRadius=$CollimatorHoleR outerRadius=$CollimatorOuterR length=$DipoleShieldThick color=$LightBlueVisAtt
+ 
+box GapSolid width=1.65*$INCH*10 height=$FZDY/2.0*0.8 length=$DipoleShieldThick+10
+
+box AfterDipoleShieldSolid width=$FZDX height=$FZDY/2.0 length=$DipoleShieldThick color=$DarkGrayVisAtt material=WNiCu_Alloy
+
+boolean op=subtraction AfterDipole1Absorber AfterDipoleShieldSolid GapSolid x=0 y=0 z=0 
+
+param CollimatorAndShieldZ=$zPosFZBend+$pFZBContainerZ/2.0+$DipoleShieldThick/2.0+sin($DipoleRotAngle*deg)*$pFZBContainerY/2.0
+param CollimatorAndShieldZold=$zPosFZBend-$mdarshanaOffset+$pFZBContainerZ/2.0+$DipoleShieldThick/2.0+sin($DipoleRotAngle*deg)*$pFZBContainerY/2.0
+
+place PhotonCollimator z=$CollimatorAndShieldZ material=WNiCu_Alloy
+place AfterDipole1Absorber rename=Dipole1AbsorberExit x=0 y=-$CollimatorOuterR-($FZDY/2.0)/2.0 z=$CollimatorAndShieldZ
+#
+### Virtual planes to see radiation to coils
+
+virtualdetector CoilPlane width=0.00001 height=$FZBCoilY length=$FZBCoilZ color=0.72,0.45,0.2 material=Vacuum
+#detector CoilPlane width=0.01 height=$FZBCoilY length=$FZBCoilZ color=0.72,0.45,0.2 material=Vacuum
+#box CoilPlane width=0.01 height=$FZBCoilY length=$FZBCoilZ color=0.72,0.45,0.2 material=Vacuum
+
+#boolean op=subtraction CoilPlaneCover CoilPlane FZCoilSubtrBox color=0.72,0.45,0.2
+
+#
+################################ MAKE GROUP FOR DIPOLE #################################################
+#
+group Dipole1Container width=$pFZBContainerX height=$pFZBContainerY length=$pFZBContainerZ material=Vacuum color=$DIPOLE_CONT_COLOR
+
+place DipoleShield               rename=Dipole1AbsorberEntrance     x=0 y=0 z=-($FZBCoilZ/2.0+$DipoleShieldThick/2.0)
+place DipoleField                rename=Dipole1Field                x=0 y=0             z=0             rotation=Z90
+place FZBCoilSpacerSolid         rename=Dipole1CoilSpacerTopExit    x=0 y=$FZBCoilPosY  z=$FZBCoilPosZ  rotation=Z0
+place FZBCoilSpacerSolid         rename=Dipole1CoilSpacerBotExit    x=0 y=-$FZBCoilPosY z=$FZBCoilPosZ  rotation=Z0
+place FZBCoilSpacerSolid         rename=Dipole1CoilSpacerBotEntr    x=0 y=-$FZBCoilPosY z=-$FZBCoilPosZ rotation=Z0
+place FZBCoilSpacerSolid         rename=Dipole1CoilSpacerTopEntr    x=0 y=$FZBCoilPosY  z=-$FZBCoilPosZ rotation=Z0
+place DipolePole                 rename=Dipole1PoleL                x=$PoleBaseDX/2+$FZPoleDX-$PoleBaseDX+$FZDX/2-$FZSideToPoleFace    y=0 z=0 rotation=Z180
+place DipolePole                 rename=Dipole1PoleR                x=-($PoleBaseDX/2+$FZPoleDX-$PoleBaseDX+$FZDX/2-$FZSideToPoleFace) y=0 z=0
+place DipoleIron                 rename=Dipole1Iron                 x=0.0 y=0.0 z=0.0 rotation=Z90
+place FZCoil                     rename=Dipole1CoilL                x=$FZBCoilPosX  y=0 z=0
+place FZCoil                     rename=Dipole1CoilR                x=-$FZBCoilPosX y=0 z=0
+#place FZBVacuumPipeSolid         rename=Dipole1VacPipe              x=0 y=0 z=0
+#place FZBVacuumFlangeSubRecSolid rename=FZBVacuumFlange1           x=0 y=0 z=$pFZBVacuumFlangePosZ  color=$GrayVisAtt
+#place FZBVacuumFlangeSubRecSolid rename=FZBVacuumFlange2           x=0 y=0 z=-$pFZBVacuumFlangePosZ color=$GrayVisAtt
+#place CoilPlane                  rename=CoilPlane1                 x=$FZBCoilPosX-$FZBCoilX/2-0.01   y=0 z=0
+#place CoilPlane                  rename=CoilPlane2                 x=-$FZBCoilPosX+$FZBCoilX/2+0.01  y=0 z=0
+
+endgroup 
+
+#######################################################################################################################
+
+param yPosDipole1=0
+#-$FZDZ/2.0*sin($DipoleRotAngle*deg)
+
+place Dipole1Container rename=Dipole1 x=0               y=$yPosDipole1    z=$zPosDipole1  rotation=$DipoleRot
+
+param LeadRadL=0.5612*10
+virtualdetector Dump height=1000 width=1000 length=$LeadRadL*80 color=1,0,0 material=Pb
+place Dump rename=HallDump x=0 y=0 z=1064*$INCH*10+$LeadRadL*80/2.0
+
+virtualdetector d4front height=2000 width=2000 length=0.1 color=1,0,0 material=Vacuum
+#place d4front rename=d1 z=$zPosDipole4-$pFZBContainerZ/2-1
+#place d4front rename=d2 z=$zPosDipole4+$pFZBContainerZ/2+1
+
+######################################################################################################
+########################### COLLIMATOR AFTER DIPOLE ##################################################
+######################################################################################################
+#
+#cylinder Collimator innerRadius=0.71 outerRadius=100 length=5 material=WNiCu_Alloy color=$DarkGrayVisAtt
+#
+#place Collimator x=0 y=0 z=$zPosFZBend+$pFZBContainerZ/2+10
+#
+######################################################################################################
+########################### PHOTON BEAM PIPE #########################################################
+######################################################################################################
+#
+param PhBeamPipeL=-$pScatChamberContainerRout-($zPosFZBend+$pFZBContainerZ/2+$DipoleShieldThick+sin($DipoleRotAngle*deg)*$pFZBContainerY/2.0)
+param PhBeamPipeWindowThickness=0.007*$INCH*10
+
+cylinder PhotonBeamPipe innerRadius=0 outerRadius=45 length=$PhBeamPipeL material=Al color=$GrayVisAtt
+#
+# The pipe is filled with He gas, and there are Al entrance and exit windows 
+#
+cylinder PhotonBeamGasVol innerRadius=0 outerRadius=40 length=$PhBeamPipeL-2*$PhBeamPipeWindowThickness \
+                          material=He color=$YellowVisAtt
+
+cylinder PhBeamPipeWindow innerRadius=0 outerRadius=40 length=$PhBeamPipeWindowThickness \ 
+                          material=Al color=$GrayVisAtt
+#
+# in case window material needs to be changed from Al to something else 
+#
+place PhBeamPipeWindow rename=PhBeamPipeEntrWindow x=0 y=0 z=-$PhBeamPipeL/2+$PhBeamPipeWindowThickness/2 parent=PhotonBeamPipe
+place PhBeamPipeWindow rename=PhBeamPipeExitWindow x=0 y=0 z=$PhBeamPipeL/2-$PhBeamPipeWindowThickness/2  parent=PhotonBeamPipe
+#
+place PhotonBeamGasVol x=0 y=0 z=0 parent=PhotonBeamPipe
+place PhotonBeamPipe x=0 y=0 z=-$PhBeamPipeL/2.0-$pScatChamberContainerRout
+#
+######################################################################################################
+########################### DEFLECTED ELECTRON BEAM PIPE #############################################
+######################################################################################################
+#
+param DeflElecAngle=7.823
+param DeflElecBeamPipeR=8*$INCH*10/2
+
+param Zstart=$CollimatorAndShieldZ+$DipoleShieldThick/2.0+2*8*$INCH*10*tan($DeflElecAngle*deg)
+param Zstartold=$CollimatorAndShieldZold+$DipoleShieldThick/2.0+2*8*$INCH*10*tan($DeflElecAngle*deg)
+param Zend=$zPosLocalDump-$LocalDumpL/2.0
+
+param DeflElecBeamPipeL=($Zend-$Zstart)/cos($DeflElecAngle*deg)-2*$DeflElecBeamPipeR*tan($DeflElecAngle*deg)
+
+param rInnerTubs=8*$INCH*10/2.0-10,24*$INCH*10/2.0-10
+param rOuterTubs=8*$INCH*10/2.0,24*$INCH*10/2.0,
+param zPlaneTubs=-$DeflElecBeamPipeL/2.0,$DeflElecBeamPipeL/2.0
+
+polycone PipeToLocalDump innerRadius=$rInnerTubs outerRadius=$rOuterTubs z=$zPlaneTubs \
+                        initialPhi=0 finalPhi=360 material=Cu color=$CuBrownVisAtt
+
+param zPosPipeToLocalDump=$Zstart+($Zend-$Zstart)/2.0
+place PipeToLocalDump x=0 y=(-1485.9-0.7*$DeflElecBeamPipeR)*($Zstartold+($Zend-$Zstartold)/2.0)/($Zstart+($Zend-$Zstart)/2.0) z=$Zstart+($Zend-$Zstart)/2.0 rotation=X$DeflElecAngle
+
+######################################################################################################
+########################### BEAM DUMP ################################################################
+######################################################################################################
+cylinder BeamDump innerRadius=0 outerRadius=1000 length=0.5612*40*10 material=G4_Pb color=$GrayVisAtt
+place BeamDump rename=LocalDump x=0 y=-2810-0.7*$DeflElecBeamPipeR z=$zPosLocalDump rotation=X$DeflElecAngle kill=0
+
+######################################################################################################
+########################### PLACE PARENT VOLUMES #####################################################
+######################################################################################################
+#
+if $SHOW==0
+ place innerOfChamberSolid x=0 y=0 z=0 parent=scatChamberContainerSolid color=$HallVisAtt
+ place scatChamberContainerSolid x=$mScatChamberXOffset y=$mScatChamberYOffset z=$mScatChamberZOffset rotation=$pRotScatInHall color=$HallVisAtt
+else
+ place innerOfChamberSolid x=0 y=0 z=0 parent=scatChamberContainerSolid color=1,0,0
+ place scatChamberContainerSolid x=$mScatChamberXOffset y=$mScatChamberYOffset z=$mScatChamberZOffset rotation=$pRotScatInHall color=0,0,1
+endif
+
+virtualdetector HallFloor radius=25000 length=1 color=$DarkGrayVisAtt
+#place HallFloor x=0 y=-13*30.5*10 z=0 rotation=X90
+
+
+################################################################################################################
+############################### INPUT OUTPUT ###################################################################
+################################################################################################################
+#by darshana
+#printf z=0 'Momentum is %.3f GeV/C' sqrt(Px*Px+Py*Py+Pz*Pz)/1000 require=PDGid==22
+#
+# This virtualdetector catches what comes out of the target in the forward
+# direction; make it green
+#
+virtualdetector Target radius=10 length=1 kill=1 color=0,1,0 
+#place Target z=0
+
+#cylinder NH3Target innerRadius=0 outerRadius=0.5*$INCH*10 length=30 material=TargetMixture color=1,0,0
+
+virtualdetector NH4Target radius=0.5*$INCH*10 length=30 material=TargetMixture color=1,0,0
+place NH4Target x=0 y=0 z=0 color=0,0,1
+
+if $DO_PLANES==1
+# Put a virtual plane in front of this 
+#
+virtualdetector Bending height=2000 width=500 length=0.1 color=1,0,0 material=Vacuum
+#place Bending y=-600 z=-$pScatChamberContainerRout-1
+#place Bending y=-600 z=-480
+#
+
+param PlaneZstep=(-$pScatChamberContainerRout-($zPosFZBend+$pFZBContainerZ/2+100))/10
+
+for ii 1 2 3 4 5 6 7 8 9
+ place Bending rename=Plane$ii y=-600-500 z=($zPosFZBend+$pFZBContainerZ/2+100)+$ii*$PlaneZstep
+endfor
+
+for ii 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40
+ place Bending rename=Plane$ii y=-600-900 z=($zPosFZBend+$pFZBContainerZ/2+100)+$ii*$PlaneZstep
+endfor
+endif
+
+######################################################################################################
+########################### Visualization commands ###################################################
+######################################################################################################
+#
+#/vis/geometry/set/forceLineSegmentsPerCircle all 0 200
+/vis/scene/add/axes 0 0 0 30. cm
+/vis/scene/add/axes 0 0 $zPosFZBend 1000. mm
+# Check distance between poles
+/vis/scene/add/axes 17.653 0 -3000 1000. mm  
+
+/vis/viewer/update 
